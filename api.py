@@ -2,6 +2,8 @@ import flask
 import redis
 import time
 
+from flask import request
+
 app = flask.Flask(__name__)
 conn = redis.Redis()
 
@@ -31,9 +33,24 @@ def distribution():
     dist = buildDist()
     return flask.jsonify(**dist)
 
-#@app.route("/probability")
+@app.route("/probability")
 def probability():
-    pass
+    '''
+    Returns the probability that a tweet created by 
+    the NYT, that contains the specified phrase in its
+    text, is retweeted.    
+    '''
+    phrase = request.args.get("phrase")
+    prob = 0
+    if phrase:
+        dist = buildDist()
+        for category, mass in dist.iteritems():
+            # phrase exists in the text of this tweet
+            if category.find(phrase) > -1:
+                prob += mass
+    payload = {"phrase": phrase,
+               "probability": prob}
+    return flask.jsonify(**payload)
 
 #@app.route("/entropy")
 def entropy():
