@@ -1,3 +1,4 @@
+import math
 import flask
 import redis
 import time
@@ -52,10 +53,37 @@ def probability():
                "probability": prob}
     return flask.jsonify(**payload)
 
-#@app.route("/entropy")
+@app.route("/entropy")
 def entropy():
+    '''
+    Returns the information (Shannon) entropy that characterizes
+    the current categorical distribution.
+
+    The Shannon entropy of a probability distribution can be 
+    thought of as the amount of information each new message 
+    conveys. When a probability distribution heavily favors 
+    one category, a new event belonging to that category conveys
+    little information because that event had a high probability
+    of occurring and was expected. The more heavily a distribution
+    favors certain categories, the lower the information entropy
+    that characterizes it. In contrast, Shannon entropy is 
+    maximized when the probability of an event type is the same 
+    across all event categories (uniform distribution).
+    A uniform distribution has the most "randomness", so 
+    the amount of information conveyed by each new event
+    (i.e. the information entropy) is maximal for such a
+    probability distribution.
+    
+    References:
+
+    https://www.quora.com/What-is-an-intuitive-explanation-of-the-concept-of-entropy-in-information-theory
+    http://stats.stackexchange.com/questions/66108/why-is-entropy-maximised-when-the-probability-distribution-is-uniform
+
+    '''
     dist = buildDist()
-    pass
+    entropy = -sum([p * math.log(p) for p in dist.itervalues()])
+    payload = {"entropy": entropy}
+    return flask.jsonify(**payload)
 
 #@app.route("rate")
 def stream_rate():
