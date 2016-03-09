@@ -85,9 +85,15 @@ def entropy():
     payload = {"entropy": entropy}
     return flask.jsonify(**payload)
 
-#@app.route("rate")
+@app.route("/rate")
 def stream_rate():
-    pass
+    keys = conn.keys("delta:*")
+    deltas = [float(delta) for delta in conn.mget(keys)]
+    avg_rate = float('inf')
+    if len(deltas):
+        avg_rate = sum(deltas)/len(deltas)
+    payload = {"rate": avg_rate}
+    return flask.jsonify(**payload)
 
 if __name__ == "__main__":
     app.run()
