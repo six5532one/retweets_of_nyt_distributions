@@ -8,6 +8,13 @@ from flask import request
 app = flask.Flask(__name__)
 conn = redis.Redis()
 
+@app.after_request
+def after(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response
+
 def buildDist():
     current_time = time.time()
     start_hours_ago = 6
