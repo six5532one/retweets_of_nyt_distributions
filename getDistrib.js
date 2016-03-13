@@ -1,4 +1,4 @@
-var apiUrl = "http://ec2-52-201-254-121.compute-1.amazonaws.com:5000/distribution"
+var apiUrl = "http://nothing-to-see-here/distribution"
 
 function displayDist(response)  {
     var categories = []
