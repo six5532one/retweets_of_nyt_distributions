@@ -9,20 +9,34 @@ import numpy as np
 from tweepy.error import TweepError
 
 conn = redis.Redis()
+# alert if entropy is less than this many standard deviations below the mean
 zscore_threshold = -1.5
+# API base url
 url = "http://{}:5000".format(os.environ["API_BASE_URL"])
 
 def zscore(entropy):
+    '''
+    Given an entropy value, returns its distance from the mean entropy as
+    the number of standard deviations.
+    '''
     keys = conn.keys("entropy:*")
     entropy_vals = np.array([float(val) for val in conn.mget(keys)])
     mean_entropy = np.mean(entropy_vals)
     std_dev = np.std(entropy_vals)
     return (entropy - mean_entropy)/std_dev
 
-def below_entropy_threshold(entropy): 
+def below_entropy_threshold(entropy):
+    '''
+    Given an entropy value, returns whether it is less than the threshold
+    number of standard deviations away from the mean entropy.
+    '''
     return zscore(entropy) < zscore_threshold 
 
 def get_most_retweeted():
+    '''
+    Returns the original @nytimes status, published within 
+    2 to 6 hours ago, that has been retweeted the most up to this point.
+    '''
     r = requests.get("{}/distribution".format(url))
     dist = json.loads(r.text)
     max_mass = -1

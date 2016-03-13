@@ -17,21 +17,30 @@ def after(response):
 
 def buildDist():
     current_time = time.time()
+    # Only include statuses published 2 to 6 hours ago as categories.
+    # Statuses created less than 2 hours ago will not have had 
+    # enough time for users to interact with them, and will not serve as a 
+    # meaningful category in the probability distribution. If statuses 
+    # created more than 6 hours ago are included in the distribution, the
+    # distribution will have too many categories.
     start_hours_ago = 6
-    #end_hours_ago = 2
-    end_hours_ago = 0
+    end_hours_ago = 2
     start_unix_time = current_time - start_hours_ago * 60 * 60
     end_unix_time = current_time - end_hours_ago * 60 * 60 
     dist = {}
+    # Retrieve IDs of @nytimes statuses published within the past 2 to 6 hours
     ids_of_timely_tweets = conn.zrangebyscore("statusCreationTime", start_unix_time, end_unix_time)
     total_retweet_count = 0
     for id_str in ids_of_timely_tweets:
+        # Retrieve text and retweet count of this original @nytimes status
         category = conn.hgetall("statusMetadata:{}".format(id_str))
         count = int(category['num_retweets'])
         if count == 0:
             continue
+        # Add category to disttribution
         dist[category['text']] = count
         total_retweet_count += count
+    # normalize the probability distribution
     for category, count in dist.items():
         dist[category] = float(count)/total_retweet_count
     return dist
@@ -94,6 +103,11 @@ def entropy():
 
 @app.route("/rate")
 def stream_rate():
+    '''
+    Returns the stream rate of retweets of Twitter statuses published
+    by @nytimes, measured as the average time delta between consecutive
+    messages during a sliding window of 120 seconds.
+    '''
     keys = conn.keys("delta:*")
     deltas = [float(delta) for delta in conn.mget(keys)]
     avg_rate = float('inf')
