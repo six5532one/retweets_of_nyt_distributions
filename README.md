@@ -31,7 +31,7 @@ Implementation
 * `alert_entropy_change.py`: Requests the entropy of the current distribution every 30 minutes and publishes a status on @EntropyPatrol's Twitter account if the entropy is less than 1.5 standard deviations below the mean
 * `index.html`: HTML document that displays the categories and probability densities of the current distribution
 * `getDistrib.js`: Requests the API's /distribution endpoint and sorts the response in order to display the categories in order of decreasing probability density
-* `http.min.js: A Javascript library for making HTTP requests
+* `http.min.js`: A Javascript library for making HTTP requests
 
 <sup>1</sup> https://www.quora.com/What-is-an-intuitive-explanation-of-the-concept-of-entropy-in-information-theory
 
